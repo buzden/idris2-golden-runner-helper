@@ -1,0 +1,5 @@
+rm -rf build/
+
+pack -q run test.ipkg
+
+rm -rf build/

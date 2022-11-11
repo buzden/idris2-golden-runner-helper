@@ -1,0 +1,7 @@
+package a-test
+
+depends = contrib
+
+main = Spec
+
+executable = test

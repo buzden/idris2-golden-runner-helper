@@ -1,0 +1,8 @@
+[install]
+whitelist = [ "golden-runner-helper-tests" ]
+
+[custom.all.golden-runner-helper]
+type = "local"
+path = "."
+ipkg = "golden-runner-helper.ipkg"
+test = "tests/tests.ipkg"

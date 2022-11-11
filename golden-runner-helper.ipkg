@@ -1,0 +1,15 @@
+package golden-runner-helper
+
+version = 0.1.0
+
+authors = "Denis Buzdalov"
+
+license = "Apache-2.0"
+
+brief = "An easy way to create `pack`-friendly runners of golden tests"
+
+sourcedir = "src"
+
+depends = test
+
+modules = Test.Golden.RunnerHelper
