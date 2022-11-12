@@ -8,12 +8,29 @@ import public Test.Golden
 import System
 import System.Directory
 
+--- Configuration facilities ---
+
+public export
+interface BaseTestsDir where
+  constructor MkBaseTestsDir
+  baseTestsDir : String
+
+public export
+interface CmdUnderTest where
+  constructor MkCmdUnderTest
+  cmdUnderTest : String
+
+public export
+%defaulthint
+DefaultCmdUnderTest : CmdUnderTest
+DefaultCmdUnderTest = MkCmdUnderTest "idris2"
+
 --- Options management ---
 
 fitsPattern : (pattern, test : String) -> Bool
 fitsPattern = isInfixOf
 
-testOptions : {default "idris2" cmdUnderTest : String} -> IO Options
+testOptions : CmdUnderTest => IO Options
 testOptions = do
   onlies <- filter (not . null) . tail' <$> getArgs
   pure $
@@ -23,13 +40,6 @@ testOptions = do
     , failureFile := Just "failures"
     , onlyNames := onlies <&> \patterns, test => any (`fitsPattern` test) patterns
     } (initOptions cmdUnderTest True)
-
---- Base dir facilities ---
-
-public export
-interface BaseTestsDir where
-  constructor MkBaseTestsDir
-  baseTestsDir : String
 
 --- A universal way to set test pools from different origins ---
 
@@ -79,7 +89,7 @@ atDir poolName dir = do
 --- Toplevel running ---
 
 export
-goldenRunner : BaseTestsDir => TestPools -> IO ()
+goldenRunner : CmdUnderTest => BaseTestsDir => TestPools -> IO ()
 goldenRunner tps = do
   ignore $ changeDir baseTestsDir
   runnerWith !testOptions !(sequence $ toList tps)
