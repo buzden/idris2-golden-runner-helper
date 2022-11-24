@@ -27,6 +27,15 @@ DefaultCmdUnderTest = MkCmdUnderTest "idris2"
 
 --- Options management ---
 
+nproc : IO $ Maybe Nat
+nproc = do
+  (str, 0) <- run "nproc"
+    | _ => pure Nothing
+  pure $ parsePositive str
+
+nproc' : IO Nat
+nproc' = fromMaybe 1 . filter (> 0) <$> nproc
+
 fitsPattern : (pattern, test : String) -> Bool
 fitsPattern = isInfixOf
 
@@ -39,6 +48,7 @@ testOptions = do
     , interactive := !((Just "true" /=) <$> getEnv "CI")
     , failureFile := Just "failures"
     , onlyNames := onlies <&> \patterns, test => any (`fitsPattern` test) patterns
+    , threads := !nproc'
     } (initOptions cmdUnderTest True)
 
 --- A universal way to set test pools from different origins ---
