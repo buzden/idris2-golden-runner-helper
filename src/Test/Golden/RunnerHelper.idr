@@ -43,7 +43,7 @@ testOptions : CmdUnderTest => IO Options
 testOptions = do
   onlies <- filter (not . null) . tail' <$> getArgs
   pure $
-    { color := True
+    { color := isNothing !(getEnv "NO_COLOR")
     , timing := True
     , interactive := !((Just "true" /=) <$> getEnv "CI")
     , failureFile := Just "failures"
