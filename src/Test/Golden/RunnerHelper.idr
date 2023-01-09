@@ -22,10 +22,13 @@ interface RunScriptArg where
   constructor MkRunScriptArg
   runScriptArg : String
 
+||| When no default argument is given, is passes a filename for "pack lock",
+||| a file to be locked over when running `pack -q install-deps test.ipkg` using `flock`.
+||| This is most useful when testing libraries, this only `pack` or `idris2` commands are used in tests.
 public export
 %defaulthint
-DefaultRunScriptArg : RunScriptArg
-DefaultRunScriptArg = MkRunScriptArg "idris2"
+DefaultRunScriptArg : BaseTestsDir => RunScriptArg
+DefaultRunScriptArg = MkRunScriptArg $ baseTestsDir ++ "/.pack_lock"
 
 --- Options management ---
 
