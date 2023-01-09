@@ -15,15 +15,17 @@ interface BaseTestsDir where
   constructor MkBaseTestsDir
   baseTestsDir : String
 
+||| Determines which string will be passed as the first argument
+||| to the `run` script of each test.
 public export
-interface CmdUnderTest where
-  constructor MkCmdUnderTest
-  cmdUnderTest : String
+interface RunScriptArg where
+  constructor MkRunScriptArg
+  runScriptArg : String
 
 public export
 %defaulthint
-DefaultCmdUnderTest : CmdUnderTest
-DefaultCmdUnderTest = MkCmdUnderTest "idris2"
+DefaultRunScriptArg : RunScriptArg
+DefaultRunScriptArg = MkRunScriptArg "idris2"
 
 --- Options management ---
 
@@ -39,7 +41,7 @@ nproc' = fromMaybe 1 . filter (> 0) <$> nproc
 fitsPattern : (pattern, test : String) -> Bool
 fitsPattern = isInfixOf
 
-testOptions : CmdUnderTest => IO Options
+testOptions : RunScriptArg => IO Options
 testOptions = do
   onlies <- filter (not . null) . tail' <$> getArgs
   pure $
@@ -49,7 +51,7 @@ testOptions = do
     , failureFile := Just "failures"
     , onlyNames := onlies <&> \patterns, test => any (`fitsPattern` test) patterns
     , threads := !nproc'
-    } (initOptions cmdUnderTest True)
+    } (initOptions runScriptArg True)
 
 --- A universal way to set test pools from different origins ---
 
@@ -99,7 +101,7 @@ atDir poolName dir = do
 --- Toplevel running ---
 
 export
-goldenRunner : CmdUnderTest => BaseTestsDir => TestPools -> IO ()
+goldenRunner : RunScriptArg => BaseTestsDir => TestPools -> IO ()
 goldenRunner tps = do
   ignore $ changeDir baseTestsDir
   runnerWith !testOptions !(sequence $ toList tps)
