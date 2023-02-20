@@ -1,6 +1,6 @@
 package a-test
 
-depends = contrib
+-- depends = contrib
 
 main = Spec
 
