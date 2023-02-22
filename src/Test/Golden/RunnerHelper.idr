@@ -31,6 +31,9 @@ DefaultRunScriptArg = MkRunScriptArg "idris2"
 
 nproc : IO $ Maybe Nat
 nproc = do
+  rawThreads <- getEnv "NUM_THREADS"
+  let Nothing = rawThreads >>= parsePositive
+    | Just n => pure $ Just n
   (str, 0) <- run "nproc"
     | _ => pure Nothing
   pure $ parsePositive str
