@@ -57,30 +57,46 @@ testOptions = do
 
 export
 interface TestPoolLike a where
-  toTestPool : a -> IO TestPool
+  toTestPool : a -> IO $ List TestPool
 
 export
 TestPoolLike (IO TestPool) where
-  toTestPool = id
+  toTestPool = map pure
 
 export
 TestPoolLike TestPool where
+  toTestPool = pure @{Compose}
+
+export
+TestPoolLike (List TestPool) where
   toTestPool = pure
 
 export
-data TestPools = MkTestPools (List $ IO TestPool)
+TestPoolLike (IO $ List TestPool) where
+  toTestPool = id
+
+export
+TestPoolLike (List $ IO TestPool) where
+  toTestPool = sequence
+
+export
+data TestPools = MkTestPools (IO $ List TestPool)
 
 namespace TestPools
 
   export
   Nil : TestPools
-  Nil = MkTestPools []
+  Nil = MkTestPools $ pure []
 
   export
   (::) : TestPoolLike a => a -> TestPools -> TestPools
-  x :: MkTestPools xs = MkTestPools $ toTestPool x :: xs
+  x :: MkTestPools xs = MkTestPools [| toTestPool x ++ xs |]
 
-toList : TestPools -> List $ IO TestPool
+  export
+  (++) : TestPools -> TestPools -> TestPools
+  MkTestPools xs ++ MkTestPools ys = MkTestPools [| xs ++ ys |]
+
+toList : TestPools -> IO $ List TestPool
 toList $ MkTestPools xs = xs
 
 --- Facilities for user's convenience ---
@@ -104,4 +120,4 @@ export
 goldenRunner : RunScriptArg => BaseTestsDir => TestPools -> IO ()
 goldenRunner tps = do
   ignore $ changeDir baseTestsDir
-  runnerWith !testOptions !(sequence $ toList tps)
+  runnerWith !testOptions !(toList tps)
