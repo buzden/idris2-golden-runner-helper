@@ -33,6 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/stefan-hoeck/idris2-pack:latest
     strategy:
+      fail-fast: false
       matrix:
         upstream-mode: [latest-pack-collection, bleeding-edge-compiler]
     steps:
