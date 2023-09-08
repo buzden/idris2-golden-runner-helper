@@ -111,7 +111,7 @@ atDir poolName dir = do
     | False => emptyPool
   Right (_::_) <- listDir dir
     | _ => emptyPool
-  testsInDir dir (not . isPrefixOf "_") poolName [] Nothing
+  testsInDir dir poolName {pred=not . isPrefixOf "_"}
 
   where
     emptyPool : IO TestPool
