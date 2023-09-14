@@ -20,14 +20,14 @@ interface BaseTestsDir where
 public export
 interface RunScriptArg where
   constructor MkRunScriptArg
-  runScriptArg : String
+  runScriptArg : BaseTestsDir => String
 
 ||| When no default argument is given, is passes a filename for "pack lock",
 ||| a file to be locked over when running `pack -q install-deps test.ipkg` using `flock`.
 ||| This is most useful when testing libraries, this only `pack` or `idris2` commands are used in tests.
 public export
 %defaulthint
-DefaultRunScriptArg : BaseTestsDir => RunScriptArg
+DefaultRunScriptArg : RunScriptArg
 DefaultRunScriptArg = MkRunScriptArg $ baseTestsDir ++ "/.pack_lock"
 
 --- Options management ---
@@ -47,7 +47,7 @@ nproc' = fromMaybe 1 . filter (> 0) <$> nproc
 fitsPattern : (pattern, test : String) -> Bool
 fitsPattern = isInfixOf
 
-testOptions : RunScriptArg => IO Options
+testOptions : BaseTestsDir => RunScriptArg => IO Options
 testOptions = do
   onlies <- filter (not . null) . tail' <$> getArgs
   pure $
