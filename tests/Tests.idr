@@ -1,4 +1,4 @@
-module Runner
+module Tests
 
 import Test.Golden.RunnerHelper
 

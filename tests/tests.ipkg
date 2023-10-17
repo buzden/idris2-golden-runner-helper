@@ -3,9 +3,7 @@ package golden-runner-helper-tests
 authors = "Denis Buzdalov"
 version = 0.1.0
 
-main = Runner
+main = Tests
 executable = runtests
-
-sourcedir = "runner"
 
 depends = golden-runner-helper
