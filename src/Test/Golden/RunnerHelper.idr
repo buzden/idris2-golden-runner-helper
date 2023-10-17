@@ -3,6 +3,8 @@ module Test.Golden.RunnerHelper
 import Data.Maybe
 import Data.String
 
+import public Language.Reflection
+
 import public Test.Golden
 
 import System
@@ -10,25 +12,34 @@ import System.Directory
 
 --- Configuration facilities ---
 
+-- Deprecated and to be removed in next versions
 public export
 interface BaseTestsDir where
   constructor MkBaseTestsDir
+  %deprecate
   baseTestsDir : String
+
+public export
+record BuildDir where
+  constructor MkBuildDir
+  buildDir : String
 
 ||| Determines which string will be passed as the first argument
 ||| to the `run` script of each test.
 public export
 interface RunScriptArg where
   constructor MkRunScriptArg
-  runScriptArg : BaseTestsDir => String
+  runScriptArg : BuildDir => String
 
 ||| When no default argument is given, is passes a filename for "pack lock",
 ||| a file to be locked over when running `pack -q install-deps test.ipkg` using `flock`.
-||| This is most useful when testing libraries, this only `pack` or `idris2` commands are used in tests.
+||| This is most useful when testing libraries, when only `pack` or `idris2` commands are used in tests.
 public export
 %defaulthint
 DefaultRunScriptArg : RunScriptArg
-DefaultRunScriptArg = MkRunScriptArg $ baseTestsDir ++ "/.pack_lock"
+DefaultRunScriptArg = R where
+  [R] RunScriptArg where
+    runScriptArg = buildDir %search ++ "/.pack_lock"
 
 --- Options management ---
 
@@ -47,7 +58,7 @@ nproc' = fromMaybe 1 . filter (> 0) <$> nproc
 fitsPattern : (pattern, test : String) -> Bool
 fitsPattern = isInfixOf
 
-testOptions : BaseTestsDir => RunScriptArg => IO Options
+testOptions : RunScriptArg => BuildDir => IO Options
 testOptions = do
   onlies <- filter (not . null) . tail' <$> getArgs
   pure $
@@ -123,7 +134,12 @@ atDir poolName dir = do
 --- Toplevel running ---
 
 export
-goldenRunner : RunScriptArg => BaseTestsDir => TestPools -> IO ()
-goldenRunner tps = do
-  ignore $ changeDir baseTestsDir
+goldenRunner' : RunScriptArg => (projectDir, buildDir : String) -> TestPools -> IO ()
+goldenRunner' projectDir buildDir tps = do
+  let _ = MkBuildDir buildDir
+  ignore $ changeDir projectDir
   runnerWith !testOptions !(toList tps)
+
+export %macro
+goldenRunner : RunScriptArg => TestPools -> Elab $ IO ()
+goldenRunner tps = pure $ goldenRunner' !(idrisDir ProjectDir) !(idrisDir BuildDir) tps
