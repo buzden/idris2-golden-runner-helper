@@ -12,13 +12,6 @@ import System.Directory
 
 --- Configuration facilities ---
 
--- Deprecated and to be removed in next versions
-public export
-interface BaseTestsDir where
-  constructor MkBaseTestsDir
-  %deprecate
-  baseTestsDir : String
-
 public export
 record BuildDir where
   constructor MkBuildDir
