@@ -3,6 +3,8 @@ package golden-runner-helper-tests
 authors = "Denis Buzdalov"
 version = 0.1.0
 
+builddir = ".build"
+
 main = Tests
 executable = runtests
 
