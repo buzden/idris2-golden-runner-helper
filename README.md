@@ -7,7 +7,7 @@ but is suited well for running from makefiles.
 
 Package manager [pack](https://github.com/stefan-hoeck/idris2-pack/) supports running tests
 put in special test packages, which is very convenient once you use `pack`.
-However, standard runner from `Test.Golden` requires a lot of options to be passed at the command line
+However, standard runner from `Test.Golden` requires a lot of options to be passed at the command-line
 which is not convenient if you want simply use `pack test <my-library>`.
 
 So, this is an alternative runner of the same golden tests
